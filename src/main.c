@@ -8,6 +8,18 @@
 
 #include "uthash.h"
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
+#define TCP_SRC(th)  (th)->th_sport
+#define TCP_DST(th)  (th)->th_dport
+#define UDP_SRC(uh)  (uh)->uh_sport
+#define UDP_DST(uh)  (uh)->uh_dport
+#else
+#define TCP_SRC(th)  (th)->source
+#define TCP_DST(th)  (th)->dest
+#define UDP_SRC(uh)  (uh)->source
+#define UDP_DST(uh)  (uh)->dest
+#endif
+
 typedef struct {
   uint32_t src_ip;
   uint32_t dst_ip;
@@ -112,15 +124,14 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header,
   if (key.proto == IPPROTO_TCP) {
     struct tcphdr *tcp_header =
         (struct tcphdr *)(packet + 14 + (ip_header->ip_hl * 4));
-    sport = ntohs(tcp_header->source);
-    dport = ntohs(tcp_header->dest);
+    sport = ntohs(TCP_SRC(tcp_header));
+    dport = ntohs(TCP_DST(tcp_header));
   } else if (key.proto == IPPROTO_UDP) {
     struct udphdr *udp_header =
         (struct udphdr *)(packet + 14 + (ip_header->ip_hl * 4));
-    sport = ntohs(udp_header->source);
-    dport = ntohs(udp_header->dest);
+    sport = ntohs(UDP_SRC(udp_header));
+    dport = ntohs(UDP_DST(udp_header));
   } else {
-    printf("Unknown proto %d\n", key.proto);
     return; // Ignore non-TCP/UDP packets
   }
 
@@ -145,7 +156,15 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header,
   sprintf(source, "%s", inet_ntoa(*(struct in_addr *)&(key.src_ip)));
   sprintf(dest, "%s", inet_ntoa(*(struct in_addr *)&(key.dst_ip)));
 #endif
-  sprintf(data, "%s  %s -> %s", (key.proto == 6) ? "TCP" : "UDP", source, dest);
+  char proto_str[16] = {0};
+  if (key.proto == 6) {
+      sprintf(proto_str, "%s", "TCP");
+  } else if (key.proto == 17) {
+      sprintf(proto_str, "%s", "UDP");
+  } else {
+      sprintf(proto_str, "proto-id-%d", key.proto);
+  }
+  sprintf(data, "%s  %s -> %s", proto_str, source, dest);
   add_flow(&key, data);
 }
 
