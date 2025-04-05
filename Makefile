@@ -7,7 +7,7 @@ endif
 
 INCLUDES := -Isrc -Iuthash/include
 SRC := src/main.c
-TARGET := build/uthash_flows
+TARGET := build/ip_flows
 
 .PHONY: all clean
 
