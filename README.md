@@ -46,3 +46,5 @@ Key [101a8c0,  9301a8c0, 53,  54583, 17]: Value - UDP  192.168.1.1:53 -> 192.168
 Key [101a8c0,  9301a8c0, 53,  58930, 17]: Value - UDP  192.168.1.1:53 -> 192.168.1.147:58930.    Count - 2
 
 ```
+
+**Tip**: _To explore the flow hashing and lookup logic, see find_flow() and add_flow() in main.c_
