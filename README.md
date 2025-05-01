@@ -12,11 +12,19 @@ It is designed to explore the use of `uthash` for efficiently managing and looki
   ```bash
   {Source IP, Destination IP, Protocol}
   ```
+**Advantages:**
+1. Results in significantly fewer flows, simplifying memory usage and processing.
+2. Ideal for high-level use cases such as client and server tracking where per-connection details (like ports) are not required.
+3. Eliminates the need to parse transport layer headers, reducing parsing complexity and overhead.
+
 - **With `USE_L4` flag:**  
  Tracks flows using full 5-tuples:
  ```bash
  {Source IP, Destination IP, Source Port, Destination Port, Protocol}
  ```
+_This option is useful for detailed per-connection tracking, session identification, and applications where transport-layer distinctions matter._
+
+
 Make sure you clone with --recursive-submodules option.
 If you have already cloned without --recursive-submodeule run below command to retrive uthash repo -
 ```bash
